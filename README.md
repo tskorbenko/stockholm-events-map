@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stockholm Events Map
 
-## Getting Started
+Interactive Stockholm event map with category filters and live data pipelines:
+- `Brott` (Polisen)
+- `Trafik` (SL)
+- `Nyheter` (RSS feeds)
+- `Kultur` (Visit Stockholm + Ticketmaster + optional Tickster)
 
-First, run the development server:
+Built with Next.js App Router, Leaflet and server-side event normalization/geocoding.
 
+## Requirements
+
+- Node.js `20.9+` (recommended: latest Node 20 LTS)
+- npm
+
+## Local Run
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create env file:
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Fill required env values in `.env.local`:
+- `TICKETMASTER_API_KEY` (required for Ticketmaster culture events)
+- `TICKSTER_API_KEY` (optional, only if you use Tickster)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run dev server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open: `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+## Production Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy to Hostinger (Business Web Hosting)
 
-## Deploy on Vercel
+1. In hPanel, create a **Node.js App** website.
+2. Connect your GitHub repository:
+   - `https://github.com/tskorbenko/stockholm-events-map.git`
+3. Configure app:
+   - Node.js version: `20.x` or newer
+   - Build command: `npm run build`
+   - Start command: `npm run start`
+4. Add environment variables in hPanel:
+   - `TICKETMASTER_API_KEY`
+   - `TICKSTER_API_KEY` (optional)
+5. Deploy/redeploy app.
+6. Attach your domain to this Node.js app and enable SSL.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The app keeps event cache snapshots in `data/events_snapshot.json` and `data/events_history.json`.
+- If some source keys are missing (e.g. Tickster), app continues to work with available sources.
+- If map markers seem stale after deploy, do a hard refresh in browser (`Ctrl+F5`).
