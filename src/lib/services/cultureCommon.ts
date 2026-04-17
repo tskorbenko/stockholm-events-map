@@ -24,8 +24,12 @@ function toIsoOrNull(value?: string | null): string | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
-function hasCoords(lat?: number | null, lng?: number | null): lat is number {
-  return Number.isFinite(lat) && Number.isFinite(lng);
+function toCoords(
+  lat?: number | null,
+  lng?: number | null,
+): { lat: number; lng: number } | null {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat: Number(lat), lng: Number(lng) };
 }
 
 function normalizeText(value: string): string {
@@ -110,7 +114,8 @@ export async function normalizeCultureEvent(raw: RawCultureEvent): Promise<Event
 
   const geocoded = await geocodeCultureBestEffort(raw);
 
-  if (!hasCoords(raw.lat, raw.lng) && !geocoded) {
+  const directCoords = toCoords(raw.lat, raw.lng);
+  if (!directCoords && !geocoded) {
     // Requirement: ignore items without Stockholm-lan toponyms.
     return null;
   }
@@ -120,8 +125,7 @@ export async function normalizeCultureEvent(raw: RawCultureEvent): Promise<Event
     2: 0.8,
     3: 0.7,
   };
-  const hasDirectCoords = hasCoords(raw.lat, raw.lng);
-  const directCoords = hasDirectCoords ? { lat: raw.lat, lng: raw.lng as number } : null;
+  const hasDirectCoords = Boolean(directCoords);
   const hasVenue = normalizeText(raw.venue || "").length > 0;
   const locationValue = normalizeText(raw.location_name || "");
   const isVenuePriorityGeocode = geocoded?.priority === 1;
